@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Heart, Zap, Smile, Frown, Meh, Battery, BatteryLow, Play, Pause, Square, Trophy, Clock, BarChart3, Mic } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 type Mood = {
   id: string;
@@ -126,6 +127,7 @@ const speakText = (text: string) => {
 };
 
 const Index = () => {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState<'checkin' | 'content' | 'activity' | 'workout' | 'report'>('checkin');
   const [selectedMood, setSelectedMood] = useState<Mood | null>(null);
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
@@ -245,6 +247,10 @@ const Index = () => {
     });
     setElapsedTime(0);
     lastVoiceCommandRef.current = -1;
+  };
+
+  const goToDashboard = () => {
+    navigate('/');
   };
 
   const handleVoiceCommand = () => {
@@ -528,19 +534,29 @@ const Index = () => {
               : `Incrível! Você se movimentou por ${minutes > 0 ? `${minutes} minutos` : `${seconds} segundos`}. Cada passo conta!`}
           </p>
           
-          <Button 
-            onClick={resetApp}
-            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-3 text-lg rounded-full"
-          >
-            Nova Sessão 🔄
-          </Button>
+          <div className="space-y-3">
+            <Button 
+              onClick={goToDashboard}
+              className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-8 py-3 text-lg rounded-full w-full"
+            >
+              Voltar ao Dashboard 🏠
+            </Button>
+            
+            <Button 
+              onClick={resetApp}
+              variant="outline"
+              className="px-8 py-3 text-lg rounded-full w-full"
+            >
+              Nova Sessão 🔄
+            </Button>
+          </div>
         </div>
       </div>
     );
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         {currentStep === 'checkin' && renderCheckin()}
         {currentStep === 'content' && renderContent()}
