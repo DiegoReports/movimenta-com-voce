@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Heart, Zap, Smile, Frown, Meh, Battery, BatteryLow, Play, Pause, Square, Trophy, Clock, BarChart3 } from "lucide-react";
+import { Heart, Zap, Smile, Frown, Meh, Battery, BatteryLow, Play, Pause, Square, Trophy, Clock, BarChart3, Mic } from "lucide-react";
 
 type Mood = {
   id: string;
@@ -141,6 +141,7 @@ const Index = () => {
   const [elapsedTime, setElapsedTime] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const lastVoiceCommandRef = useRef<number>(-1);
+  const [isVoiceActive, setIsVoiceActive] = useState(false);
 
   // Timer effect
   useEffect(() => {
@@ -244,6 +245,18 @@ const Index = () => {
     });
     setElapsedTime(0);
     lastVoiceCommandRef.current = -1;
+  };
+
+  const handleVoiceCommand = () => {
+    if (!selectedActivity || !selectedMood) return;
+    
+    setIsVoiceActive(true);
+    const elapsedMinutes = Math.floor(elapsedTime / 60);
+    const command = getVoiceCommand(selectedActivity, selectedMood, elapsedMinutes);
+    speakText(command);
+    
+    // Reset animation after speech
+    setTimeout(() => setIsVoiceActive(false), 3000);
   };
 
   const renderCheckin = () => (
@@ -372,7 +385,7 @@ const Index = () => {
               </p>
             </div>
 
-            <div className="flex gap-4 justify-center">
+            <div className="flex gap-4 justify-center items-center">
               <Button
                 onClick={handlePauseWorkout}
                 size="lg"
@@ -392,6 +405,22 @@ const Index = () => {
                 )}
               </Button>
 
+              {/* Voice Command Button */}
+              <Button
+                onClick={handleVoiceCommand}
+                size="lg"
+                variant="outline"
+                className={`w-16 h-16 rounded-full transition-all duration-300 ${
+                  isVoiceActive 
+                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white border-purple-400 scale-110 animate-pulse' 
+                    : 'hover:bg-purple-50 hover:border-purple-300 hover:scale-105'
+                }`}
+              >
+                <Mic className={`w-6 h-6 transition-all duration-300 ${
+                  isVoiceActive ? 'animate-bounce text-white' : 'text-purple-600'
+                }`} />
+              </Button>
+
               <Button
                 onClick={handleFinishWorkout}
                 size="lg"
@@ -404,12 +433,22 @@ const Index = () => {
           </CardContent>
         </Card>
 
-        <div className="text-center">
+        <div className="text-center space-y-3">
           <p className="text-sm text-gray-600 max-w-xs mx-auto">
             {selectedActivity.id === 'relax' 
               ? "Aproveite este momento de autocuidado. Respire fundo e se conecte consigo mesmo." 
               : "Mantenha o ritmo! Cada movimento é uma vitória."}
           </p>
+          
+          {/* Voice Instructions */}
+          <div className="bg-purple-50 p-3 rounded-lg border border-purple-200 max-w-xs mx-auto">
+            <div className="flex items-center justify-center gap-2 text-purple-700">
+              <Mic className="w-4 h-4" />
+              <span className="text-xs font-medium">
+                Toque no microfone para ouvir estímulos motivacionais
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     );
