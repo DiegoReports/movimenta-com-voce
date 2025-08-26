@@ -9,7 +9,7 @@ export default async function handler(req, res) {
     const { text } = req.body;
 
     const response = await axios.post(
-      "https://api.elevenlabs.io/v1/text-to-speech/<voice_id>",
+      "https://api.elevenlabs.io/v1/text-to-speech/kPzsL2i3teMYv0FxEYQ6",
       { text },
       {
         headers: {
