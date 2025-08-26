@@ -17,6 +17,7 @@ import {
   Award
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Analytics } from "@vercel/analytics/next"
 
 type WorkoutHistory = {
   id: string;
@@ -108,6 +109,7 @@ const Dashboard = () => {
               <Heart className="w-8 h-8 text-white" />
             </div>
           </div>
+          <Analytics />
           <h1 className="text-3xl font-bold text-foreground">Olá, {userName}!</h1>
           <p className="text-lg text-muted-foreground">
             Como está se sentindo hoje?
