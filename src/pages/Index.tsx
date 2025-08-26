@@ -117,11 +117,9 @@ const formatTime = (seconds: number) => {
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 };
 
-// Function to fetch audio from ElevenLabs API
-const fetchVoiceFromElevenLabs = async (text: string): Promise<string | null> => {
-  const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY; // Updated to use Vite's environment variable syntax
-  const voiceId = 'kPzsL2i3teMYv0FxEYQ6'; // Replace with the desired voice ID from ElevenLabs
-  const url = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`;
+// Function to fetch audio from Vercel API
+const fetchVoiceFromVercel = async (text: string): Promise<string | null> => {
+  const url = `/api/tts`; // Vercel API endpoint
 
   try {
     const response = await axios.post(
@@ -130,7 +128,6 @@ const fetchVoiceFromElevenLabs = async (text: string): Promise<string | null> =>
       {
         headers: {
           'Content-Type': 'application/json',
-          'xi-api-key': apiKey,
         },
         responseType: 'arraybuffer', // To handle audio data
       }
@@ -140,14 +137,14 @@ const fetchVoiceFromElevenLabs = async (text: string): Promise<string | null> =>
     const audioBlob = new Blob([response.data], { type: 'audio/mpeg' });
     return URL.createObjectURL(audioBlob);
   } catch (error) {
-    console.error('Error fetching voice from ElevenLabs:', error);
+    console.error('Error fetching voice from Vercel API:', error);
     return null;
   }
 };
 
-// Updated speakText function to use ElevenLabs
+// Updated speakText function to use Vercel API
 const speakText = async (text: string) => {
-  const audioUrl = await fetchVoiceFromElevenLabs(text);
+  const audioUrl = await fetchVoiceFromVercel(text);
   if (audioUrl) {
     const audio = new Audio(audioUrl);
     audio.play();
