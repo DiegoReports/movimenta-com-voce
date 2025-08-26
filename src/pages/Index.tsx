@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Heart, Zap, Smile, Frown, Meh, Battery, BatteryLow, Play, Pause, Square, Trophy, Clock, BarChart3, Mic } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import axios from 'axios';
 
 type Mood = {
   id: string;
@@ -116,13 +117,49 @@ const formatTime = (seconds: number) => {
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 };
 
-const speakText = (text: string) => {
-  if ('speechSynthesis' in window) {
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'pt-BR';
-    utterance.rate = 0.9;
-    utterance.pitch = 1;
-    window.speechSynthesis.speak(utterance);
+// Function to fetch audio from ElevenLabs API
+const fetchVoiceFromElevenLabs = async (text: string): Promise<string | null> => {
+  const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY; // Updated to use Vite's environment variable syntax
+  const voiceId = 'kPzsL2i3teMYv0FxEYQ6'; // Replace with the desired voice ID from ElevenLabs
+  const url = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`;
+
+  try {
+    const response = await axios.post(
+      url,
+      { text },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'xi-api-key': apiKey,
+        },
+        responseType: 'arraybuffer', // To handle audio data
+      }
+    );
+
+    // Convert audio data to a Blob URL
+    const audioBlob = new Blob([response.data], { type: 'audio/mpeg' });
+    return URL.createObjectURL(audioBlob);
+  } catch (error) {
+    console.error('Error fetching voice from ElevenLabs:', error);
+    return null;
+  }
+};
+
+// Updated speakText function to use ElevenLabs
+const speakText = async (text: string) => {
+  const audioUrl = await fetchVoiceFromElevenLabs(text);
+  if (audioUrl) {
+    const audio = new Audio(audioUrl);
+    audio.play();
+  } else {
+    console.warn('Failed to play audio. Falling back to SpeechSynthesis.');
+    if ('speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'pt-BR';
+      utterance.rate = 0.9;
+      utterance.pitch = 1;
+      window.speechSynthesis.speak(utterance);
+    }
   }
 };
 
